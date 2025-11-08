@@ -11,36 +11,93 @@
     button { margin-top: 10px; padding: 10px 15px; background: #111; color: white; border: none; border-radius: 8px; cursor: pointer; }
     .match { border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 10px; }
     input, select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>⚽ Halısaha Rakip Bulucu</h1>
-    <div id="app">
-      <div id="home" class="card">
-        <label>Şehir</label>
-        <input id="city" placeholder="İstanbul, Ankara..." />
-
-        <label>Tarih</label>
-        <input id="date" type="date" />
-
-        <label>Seviye</label>
-        <select id="skill">
-          <option>Başlangıç</option>
-          <option>Orta</option>
-          <option>İyi</option>
-        </select>
-
-        <button id="findBtn">Rakipleri Göster</button>
-      </div>
-
-      <div id="results" class="results" style="display:none;">
-        <h2>Eşleşen Takımlar</h2>
-        <div id="matchList"></div>
-        <button id="backBtn">↩️ Geri Dön</button>
-      </div>
-    </div>
-  </div>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 480px;
+    margin: auto;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #1b1f3b;
+    margin-bottom: 20px;
+  }
+  .card, .results {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-top: 20px;
+  }
+  label {
+    font-weight: bold;
+    color: #1b1f3b;
+    display: block;
+    margin-top: 10px;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background-color: #1b1f3b;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  button:hover {
+    background-color: #323662;
+  }
+  .match {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+    background: #f7f9fc;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .match:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .match strong {
+    font-size: 18px;
+    color: #1b1f3b;
+  }
+  .match p {
+    margin: 4px 0;
+    color: #333;
+  }
+  @media (max-width: 500px) {
+    .container {
+      padding: 15px;
+    }
+    input, select, button {
+      font-size: 15px;
+    }
+    .match strong {
+      font-size: 16px;
+    }
+  }
+</style>
 
   <script>
     const findBtn = document.getElementById("findBtn");
