@@ -24,7 +24,7 @@
 <div class="container">
   <h1>⚽ Halısaha Rakip Bulucu</h1>
 
-  <!-- Ana Sayfa -->
+  <!-- Ana Sayfa: Filtreleme ve İlan Görüntüleme -->
   <div id="home" class="card">
     <label>Şehir</label>
     <input id="city" placeholder="İstanbul, Ankara..." />
@@ -40,7 +40,7 @@
     <button id="createBtn" style="margin-top:10px;background:#06D6A0;">Yeni İlan Oluştur</button>
   </div>
 
-  <!-- İlan Oluşturma Sayfası -->
+  <!-- İlan Oluşturma Formu -->
   <div id="create" class="card" style="display:none;">
     <h2>Yeni Rakip İlanı</h2>
     <label>Takım Adı</label>
@@ -70,6 +70,7 @@
 </div>
 
 <script>
+// DOM Elemanları
 const findBtn = document.getElementById("findBtn");
 const backBtn = document.getElementById("backBtn");
 const home = document.getElementById("home");
@@ -80,7 +81,7 @@ const create = document.getElementById("create");
 const saveBtn = document.getElementById("saveBtn");
 const backHomeBtn = document.getElementById("backHomeBtn");
 
-// Önceden tanımlı takımlar
+// Önceden tanımlı ve localStorage'dan alınan ilanlar
 let allTeams = JSON.parse(localStorage.getItem('teams')) || [
   { teamName: "Altın Ayaklar", skill: "Orta", contact: "@altinayaklar", location: "Kadıköy", available: "2025-11-09" },
   { teamName: "Gece Kartalları", skill: "İyi", contact: "@gecekartallari", location: "Beşiktaş", available: "2025-11-09" },
@@ -125,25 +126,14 @@ findBtn.addEventListener("click", () => {
   results.style.display = "block";
 });
 
-// Geri butonu
-backBtn.addEventListener("click", () => {
-  results.style.display = "none";
-  home.style.display = "block";
-});
+// Geri butonları
+backBtn.addEventListener("click", () => { results.style.display="none"; home.style.display="block"; });
+backHomeBtn.addEventListener("click", () => { create.style.display="none"; home.style.display="block"; });
 
-// Yeni İlan Sayfasına Geçiş
-createBtn.addEventListener("click", () => {
-  home.style.display = "none";
-  create.style.display = "block";
-});
+// İlan Oluştur sayfasına geçiş
+createBtn.addEventListener("click", () => { home.style.display="none"; create.style.display="block"; });
 
-// Ana sayfaya dön
-backHomeBtn.addEventListener("click", () => {
-  create.style.display = "none";
-  home.style.display = "block";
-});
-
-// İlan kaydet
+// İlan Kaydetme
 saveBtn.addEventListener("click", () => {
   const teamName = document.getElementById("teamName").value.trim();
   const location = document.getElementById("teamCity").value.trim();
@@ -151,23 +141,21 @@ saveBtn.addEventListener("click", () => {
   const skill = document.getElementById("teamSkill").value;
   const contact = document.getElementById("teamContact").value.trim();
 
-  if(!teamName || !location || !available || !skill || !contact){
-    alert("Lütfen tüm alanları doldurun!");
-    return;
-  }
+  if(!teamName || !location || !available || !skill || !contact){ alert("Lütfen tüm alanları doldurun!"); return; }
 
   const newTeam = { teamName, skill, contact, location, available };
   allTeams.push(newTeam);
   localStorage.setItem('teams', JSON.stringify(allTeams));
   alert("İlanınız kaydedildi!");
-  create.style.display = "none";
-  home.style.display = "block";
 
   // Formu temizle
-  document.getElementById("teamName").value = "";
-  document.getElementById("teamCity").value = "";
-  document.getElementById("teamDate").value = "";
-  document.getElementById("teamContact").value = "";
+  document.getElementById("teamName").value="";
+  document.getElementById("teamCity").value="";
+  document.getElementById("teamDate").value="";
+  document.getElementById("teamContact").value="";
+
+  create.style.display="none";
+  home.style.display="block";
 });
 </script>
 </body>
