@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HalıSaha AI Rakip Bulucu</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f5f5; }
+    .container { max-width: 500px; margin: auto; padding: 20px; }
+    .card, .results { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px; }
+    button { margin-top: 10px; padding: 10px 15px; background: #111; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .match { border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 10px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚽ Halısaha AI Rakip Bulucu</h1>
+    <div id="app">
+      <div id="home" class="card">
+        <label>Şehir</label>
+        <input id="city" placeholder="İstanbul, Ankara..." />
+
+        <label>Tarih</label>
+        <input id="date" type="date" />
+
+        <label>Saat</label>
+        <input id="time" type="time" />
+
+        <label>Seviye</label>
+        <select id="skill">
+          <option>Başlangıç</option>
+          <option>Orta</option>
+          <option>İyi</option>
+        </select>
+
+        <button id="findBtn">AI ile rakip bul</button>
+      </div>
+
+      <div id="results" class="results" style="display:none;">
+        <h2>AI Eşleşmeleri</h2>
+        <div id="matchList"></div>
+        <button id="backBtn">↩️ Geri Dön</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const findBtn = document.getElementById("findBtn");
+    const backBtn = document.getElementById("backBtn");
+    const home = document.getElementById("home");
+    const results = document.getElementById("results");
+    const matchList = document.getElementById("matchList");
+
+    findBtn.addEventListener("click", () => {
+      const city = document.getElementById("city").value;
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
+      const skill = document.getElementById("skill").value;
+
+      const matches = [
+        { teamName: "Altın Ayaklar", skill, contact: "@altinayaklar", location: city || "Kadıköy", available: date || "Yarın" },
+        { teamName: "Gece Kartalları", skill: "Orta", contact: "@gecekartallari", location: city || "Beşiktaş", available: date || "Yarın" }
+      ];
+
+      matchList.innerHTML = "";
+      matches.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "match";
+        div.innerHTML = `
+          <strong>${m.teamName}</strong>
+          <p>Seviye: ${m.skill}</p>
+          <p>Konum: ${m.location}</p>
+          <p>İletişim: ${m.contact}</p>
+          <button onclick="alert('Selam ${m.teamName}, ${date || "yakın zamanda"} ${city || ""} maç yapmak ister misiniz? Takımımız ${skill}.')">Davet Mesajı Göster</button>
+        `;
+        matchList.appendChild(div);
+      });
+
+      home.style.display = "none";
+      results.style.display = "block";
+    });
+
+    backBtn.addEventListener("click", () => {
+      results.style.display = "none";
+      home.style.display = "block";
+    });
+  </script>
+</body>
+</html>
