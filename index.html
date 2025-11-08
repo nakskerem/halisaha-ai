@@ -1,158 +1,116 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HalıSaha Rakip Bulucu</title>
-  <style>
-    body { font-family: sans-serif; background: #f5f5f5; }
-    .container { max-width: 500px; margin: auto; padding: 20px; }
-    .card, .results { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px; }
-    button { margin-top: 10px; padding: 10px 15px; background: #111; color: white; border: none; border-radius: 8px; cursor: pointer; }
-    .match { border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 10px; }
-    input, select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HalıSaha Rakip Bulucu</title>
 <style>
   body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
   }
-  .container {
-    max-width: 480px;
-    margin: auto;
-    padding: 20px;
-  }
-  h1 {
-    text-align: center;
-    color: #1b1f3b;
-    margin-bottom: 20px;
-  }
-  .card, .results {
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-top: 20px;
-  }
-  label {
-    font-weight: bold;
-    color: #1b1f3b;
-    display: block;
-    margin-top: 10px;
-  }
-  input, select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  }
-  button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    background-color: #1b1f3b;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  button:hover {
-    background-color: #323662;
-  }
-  .match {
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 12px;
-    margin-top: 12px;
-    background: #f7f9fc;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .match:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  .match strong {
-    font-size: 18px;
-    color: #1b1f3b;
-  }
-  .match p {
-    margin: 4px 0;
-    color: #333;
-  }
-  @media (max-width: 500px) {
-    .container {
-      padding: 15px;
-    }
-    input, select, button {
-      font-size: 15px;
-    }
-    .match strong {
-      font-size: 16px;
-    }
-  }
+  .container { max-width: 480px; margin: auto; padding: 20px; }
+  h1 { text-align: center; color: #1b1f3b; margin-bottom: 20px; }
+  .card, .results { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 20px; }
+  label { font-weight: bold; color: #1b1f3b; display: block; margin-top: 10px; }
+  input, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ccc; font-size: 16px; }
+  button { width: 100%; padding: 12px; margin-top: 10px; background-color: #1b1f3b; color: #fff; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.2s ease; }
+  button:hover { background-color: #323662; }
+  .match { border-radius: 12px; padding: 12px; margin-top: 12px; background: #f7f9fc; transition: transform 0.2s ease, box-shadow 0.2s ease; border-left: 6px solid; }
+  .match:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .match strong { font-size: 18px; color: #1b1f3b; }
+  .match p { margin: 4px 0; color: #333; }
+  @media (max-width: 500px) { .container { padding: 15px; } input, select, button { font-size: 15px; } .match strong { font-size: 16px; } }
 </style>
+</head>
+<body>
+<div class="container">
+  <h1>⚽ Halısaha Rakip Bulucu</h1>
+  <div id="app">
+    <div id="home" class="card">
+      <label>Şehir</label>
+      <input id="city" placeholder="İstanbul, Ankara..." />
+      <label>Tarih</label>
+      <input id="date" type="date" />
+      <label>Seviye</label>
+      <select id="skill">
+        <option>Başlangıç</option>
+        <option>Orta</option>
+        <option>İyi</option>
+      </select>
+      <button id="findBtn">Rakipleri Göster</button>
+    </div>
+    <div id="results" class="results" style="display:none;">
+      <h2>Eşleşen Takımlar</h2>
+      <div id="matchList"></div>
+      <button id="backBtn">↩️ Geri Dön</button>
+    </div>
+  </div>
+</div>
 
-  <script>
-    const findBtn = document.getElementById("findBtn");
-    const backBtn = document.getElementById("backBtn");
-    const home = document.getElementById("home");
-    const results = document.getElementById("results");
-    const matchList = document.getElementById("matchList");
+<script>
+const findBtn = document.getElementById("findBtn");
+const backBtn = document.getElementById("backBtn");
+const home = document.getElementById("home");
+const results = document.getElementById("results");
+const matchList = document.getElementById("matchList");
 
-    const allTeams = [
-      { teamName: "Altın Ayaklar", skill: "Orta", contact: "@altinayaklar", location: "Kadıköy", available: "2025-11-09" },
-      { teamName: "Gece Kartalları", skill: "İyi", contact: "@gecekartallari", location: "Beşiktaş", available: "2025-11-09" },
-      { teamName: "Yeşil Panterler", skill: "Başlangıç", contact: "@yesilpanter", location: "Kadıköy", available: "2025-11-10" }
-    ];
+// Gelişmiş rakip listesi
+const allTeams = [
+  { teamName: "Altın Ayaklar", skill: "Orta", contact: "@altinayaklar", location: "Kadıköy", available: "2025-11-09" },
+  { teamName: "Gece Kartalları", skill: "İyi", contact: "@gecekartallari", location: "Beşiktaş", available: "2025-11-09" },
+  { teamName: "Yeşil Panterler", skill: "Başlangıç", contact: "@yesilpanter", location: "Kadıköy", available: "2025-11-10" },
+  { teamName: "Sarı Kartallar", skill: "Orta", contact: "@sarikartallar", location: "Üsküdar", available: "2025-11-11" },
+  { teamName: "Kırmızı Şimşekler", skill: "İyi", contact: "@kirmizisimsek", location: "Kadıköy", available: "2025-11-10" }
+];
 
-    function filterTeams(city, date, skill) {
-      return allTeams.filter(team => 
-        (city === "" || team.location.toLowerCase() === city.toLowerCase()) &&
-        (date === "" || team.available === date) &&
-        (skill === "" || team.skill === skill)
-      );
-    }
+// Seviye renkleri
+const skillColors = { "Başlangıç": "#FFD166", "Orta": "#06D6A0", "İyi": "#EF476F" };
 
-    findBtn.addEventListener("click", () => {
-      const city = document.getElementById("city").value;
-      const date = document.getElementById("date").value;
-      const skill = document.getElementById("skill").value;
+// Filtreleme fonksiyonu
+function filterTeams(city, date, skill) {
+  return allTeams.filter(team =>
+    (city === "" || team.location.toLowerCase() === city.toLowerCase()) &&
+    (date === "" || team.available === date) &&
+    (skill === "" || team.skill === skill)
+  );
+}
 
-      const matches = filterTeams(city, date, skill);
+// Rakipleri göster
+findBtn.addEventListener("click", () => {
+  const city = document.getElementById("city").value;
+  const date = document.getElementById("date").value;
+  const skill = document.getElementById("skill").value;
 
-      matchList.innerHTML = "";
-      if(matches.length === 0){
-        matchList.innerHTML = "<p>Hiç eşleşen takım bulunamadı.</p>";
-      }
+  const matches = filterTeams(city, date, skill);
 
-      matches.forEach(m => {
-        const div = document.createElement("div");
-        div.className = "match";
-        div.innerHTML = `
-          <strong>${m.teamName}</strong>
-          <p>Seviye: ${m.skill}</p>
-          <p>Konum: ${m.location}</p>
-          <p>İletişim: ${m.contact}</p>
-          <button onclick="alert('Selam ${m.teamName}, ${date || "yakın zamanda"} ${city || ""} maç yapmak ister misiniz? Takımımız ${skill}.')">Davet Mesajı Göster</button>
-        `;
-        matchList.appendChild(div);
-      });
+  matchList.innerHTML = "";
+  if(matches.length === 0) matchList.innerHTML = "<p>Hiç eşleşen takım bulunamadı.</p>";
 
-      home.style.display = "none";
-      results.style.display = "block";
-    });
+  matches.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "match";
+    div.style.borderLeftColor = skillColors[m.skill] || "#333";
+    div.innerHTML = `
+      <strong>${m.teamName}</strong>
+      <p>Seviye: ${m.skill}</p>
+      <p>Konum: ${m.location}</p>
+      <p>İletişim: ${m.contact}</p>
+      <button onclick="alert('Selam ${m.teamName}, ${date || 'yakın zamanda'} ${city || ''} maç yapmak ister misiniz? Takımımız ${skill}.')">Davet Mesajı Göster</button>
+    `;
+    matchList.appendChild(div);
+  });
 
-    backBtn.addEventListener("click", () => {
-      results.style.display = "none";
-      home.style.display = "block";
-    });
-  </script>
+  home.style.display = "none";
+  results.style.display = "block";
+});
+
+// Geri butonu
+backBtn.addEventListener("click", () => {
+  results.style.display = "none";
+  home.style.display = "block";
+});
+</script>
 </body>
 </html>
