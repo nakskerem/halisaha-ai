@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HalıSaha Rakip Bulucu</title>
+<title>HalıSaha Rakip Bulucu - Hesaplı</title>
 <style>
-  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #f0f4f8, #d9e2ec); margin:0; padding:0; }
+  body { font-family:'Segoe UI',sans-serif; background:linear-gradient(to bottom,#f0f4f8,#d9e2ec); margin:0; padding:0; }
   .container { max-width:480px; margin:auto; padding:20px; }
-  h1 { text-align:center; color:#1b1f3b; margin-bottom:20px; }
+  h1,h2 { text-align:center; color:#1b1f3b; margin-bottom:20px; }
   .card, .results { background:white; padding:20px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:20px; }
   label { font-weight:bold; color:#1b1f3b; display:block; margin-top:10px; }
   input, select { width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:10px; border:1px solid #ccc; font-size:16px; }
@@ -24,8 +24,19 @@
 <div class="container">
   <h1>⚽ Halısaha Rakip Bulucu</h1>
 
-  <!-- Ana Sayfa: Filtreleme ve İlan Görüntüleme -->
-  <div id="home" class="card">
+  <!-- Giriş / Kayıt -->
+  <div id="auth" class="card">
+    <h2>Giriş Yap veya Kayıt Ol</h2>
+    <label>Kullanıcı Adı</label>
+    <input id="authUsername" placeholder="Kullanıcı adı" />
+    <label>Şifre</label>
+    <input id="authPassword" type="password" placeholder="Şifre" />
+    <button id="loginBtn">Giriş Yap</button>
+    <button id="registerBtn" style="margin-top:10px;background:#06D6A0;">Kayıt Ol</button>
+  </div>
+
+  <!-- Ana Sayfa -->
+  <div id="home" class="card" style="display:none;">
     <label>Şehir</label>
     <input id="city" placeholder="İstanbul, Ankara..." />
     <label>Tarih</label>
@@ -38,9 +49,11 @@
     </select>
     <button id="findBtn">Rakipleri Göster</button>
     <button id="createBtn" style="margin-top:10px;background:#06D6A0;">Yeni İlan Oluştur</button>
+    <button id="myTeamsBtn" style="margin-top:10px;background:#FFD166;">Sadece Benim İlanlarım</button>
+    <button id="logoutBtn" style="margin-top:10px;background:#EF476F;">Çıkış Yap</button>
   </div>
 
-  <!-- İlan Oluşturma Formu -->
+  <!-- İlan Oluşturma -->
   <div id="create" class="card" style="display:none;">
     <h2>Yeni Rakip İlanı</h2>
     <label>Takım Adı</label>
@@ -61,7 +74,7 @@
     <button id="backHomeBtn" style="margin-top:10px;background:#323662;">↩️ Ana Sayfa</button>
   </div>
 
-  <!-- Sonuçlar Sayfası -->
+  <!-- Sonuçlar -->
   <div id="results" class="results" style="display:none;">
     <h2>Eşleşen Takımlar</h2>
     <div id="matchList"></div>
@@ -70,93 +83,118 @@
 </div>
 
 <script>
-// DOM Elemanları
-const findBtn = document.getElementById("findBtn");
-const backBtn = document.getElementById("backBtn");
+// DOM elemanları
+const auth = document.getElementById("auth");
 const home = document.getElementById("home");
-const results = document.getElementById("results");
-const matchList = document.getElementById("matchList");
-const createBtn = document.getElementById("createBtn");
 const create = document.getElementById("create");
+const results = document.getElementById("results");
+const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const createBtn = document.getElementById("createBtn");
 const saveBtn = document.getElementById("saveBtn");
 const backHomeBtn = document.getElementById("backHomeBtn");
+const findBtn = document.getElementById("findBtn");
+const backBtn = document.getElementById("backBtn");
+const myTeamsBtn = document.getElementById("myTeamsBtn");
+const matchList = document.getElementById("matchList");
 
-// Önceden tanımlı ve localStorage'dan alınan ilanlar
-let allTeams = JSON.parse(localStorage.getItem('teams')) || [
-  { teamName: "Altın Ayaklar", skill: "Orta", contact: "@altinayaklar", location: "Kadıköy", available: "2025-11-09" },
-  { teamName: "Gece Kartalları", skill: "İyi", contact: "@gecekartallari", location: "Beşiktaş", available: "2025-11-09" },
-  { teamName: "Yeşil Panterler", skill: "Başlangıç", contact: "@yesilpanter", location: "Kadıköy", available: "2025-11-10" }
-];
+// Kullanıcı ve ilan verileri
+let users = JSON.parse(localStorage.getItem('users')) || [];
+let allTeams = JSON.parse(localStorage.getItem('teams')) || [];
+let currentUser = sessionStorage.getItem('currentUser') || null;
 
 // Seviye renkleri
-const skillColors = { "Başlangıç": "#FFD166", "Orta": "#06D6A0", "İyi": "#EF476F" };
+const skillColors = { "Başlangıç":"#FFD166", "Orta":"#06D6A0", "İyi":"#EF476F" };
 
-// Filtreleme fonksiyonu
-function filterTeams(city, date, skill) {
-  return allTeams.filter(team =>
-    (city === "" || team.location.toLowerCase() === city.toLowerCase()) &&
-    (date === "" || team.available === date) &&
-    (skill === "" || team.skill === skill)
-  );
-}
+// Oturum varsa home göster
+if(currentUser){ auth.style.display="none"; home.style.display="block"; }
 
-// Rakipleri Göster
-findBtn.addEventListener("click", () => {
-  const city = document.getElementById("city").value;
-  const date = document.getElementById("date").value;
-  const skill = document.getElementById("skill").value;
-  const matches = filterTeams(city, date, skill);
-
-  matchList.innerHTML = "";
-  if(matches.length === 0) matchList.innerHTML = "<p>Hiç eşleşen takım bulunamadı.</p>";
-
-  matches.forEach(m => {
-    const div = document.createElement("div");
-    div.className = "match";
-    div.style.borderLeftColor = skillColors[m.skill] || "#333";
-    div.innerHTML = `<strong>${m.teamName}</strong>
-                     <p>Seviye: ${m.skill}</p>
-                     <p>Konum: ${m.location}</p>
-                     <p>İletişim: ${m.contact}</p>
-                     <button onclick="alert('Selam ${m.teamName}, ${date || 'yakın zamanda'} ${city || ''} maç yapmak ister misiniz? Takımımız ${skill}.')">Davet Mesajı Göster</button>`;
-    matchList.appendChild(div);
-  });
-
-  home.style.display = "none";
-  results.style.display = "block";
+// Giriş
+loginBtn.addEventListener("click", () => {
+  const username = document.getElementById("authUsername").value.trim();
+  const password = document.getElementById("authPassword").value.trim();
+  const user = users.find(u=>u.username===username && u.password===password);
+  if(user){ 
+    currentUser = username; 
+    sessionStorage.setItem('currentUser', username);
+    auth.style.display="none"; home.style.display="block"; 
+  } else { alert("Hatalı kullanıcı adı veya şifre"); }
 });
 
-// Geri butonları
-backBtn.addEventListener("click", () => { results.style.display="none"; home.style.display="block"; });
+// Kayıt
+registerBtn.addEventListener("click", () => {
+  const username = document.getElementById("authUsername").value.trim();
+  const password = document.getElementById("authPassword").value.trim();
+  if(!username||!password){ alert("Alanlar boş olamaz"); return; }
+  if(users.find(u=>u.username===username)){ alert("Kullanıcı zaten var"); return; }
+  users.push({username,password});
+  localStorage.setItem('users', JSON.stringify(users));
+  alert("Kayıt başarılı! Giriş yapabilirsiniz.");
+});
+
+// Çıkış
+logoutBtn.addEventListener("click", () => {
+  sessionStorage.removeItem('currentUser');
+  currentUser=null;
+  home.style.display="none";
+  auth.style.display="block";
+});
+
+// İlan oluşturma sayfası
+createBtn.addEventListener("click", () => { home.style.display="none"; create.style.display="block"; });
 backHomeBtn.addEventListener("click", () => { create.style.display="none"; home.style.display="block"; });
 
-// İlan Oluştur sayfasına geçiş
-createBtn.addEventListener("click", () => { home.style.display="none"; create.style.display="block"; });
-
-// İlan Kaydetme
+// İlan kaydetme
 saveBtn.addEventListener("click", () => {
-  const teamName = document.getElementById("teamName").value.trim();
-  const location = document.getElementById("teamCity").value.trim();
-  const available = document.getElementById("teamDate").value;
-  const skill = document.getElementById("teamSkill").value;
-  const contact = document.getElementById("teamContact").value.trim();
-
-  if(!teamName || !location || !available || !skill || !contact){ alert("Lütfen tüm alanları doldurun!"); return; }
-
-  const newTeam = { teamName, skill, contact, location, available };
+  const teamName=document.getElementById("teamName").value.trim();
+  const location=document.getElementById("teamCity").value.trim();
+  const available=document.getElementById("teamDate").value;
+  const skill=document.getElementById("teamSkill").value;
+  const contact=document.getElementById("teamContact").value.trim();
+  if(!teamName||!location||!available||!skill||!contact){ alert("Tüm alanları doldurun!"); return; }
+  const newTeam={teamName,skill,contact,location,available,owner:currentUser};
   allTeams.push(newTeam);
   localStorage.setItem('teams', JSON.stringify(allTeams));
-  alert("İlanınız kaydedildi!");
-
-  // Formu temizle
+  alert("İlan kaydedildi!");
   document.getElementById("teamName").value="";
   document.getElementById("teamCity").value="";
   document.getElementById("teamDate").value="";
   document.getElementById("teamContact").value="";
-
-  create.style.display="none";
-  home.style.display="block";
+  create.style.display="none"; home.style.display="block";
 });
+
+// Rakipleri göster
+function showMatches(filterOwner=null){
+  const city=document.getElementById("city").value.trim();
+  const date=document.getElementById("date").value;
+  const skill=document.getElementById("skill").value;
+  let matches = allTeams.filter(team=>
+    (city===""||team.location.toLowerCase()===city.toLowerCase()) &&
+    (date===""||team.available===date) &&
+    (skill===""||team.skill===skill)
+  );
+  if(filterOwner) matches = matches.filter(t=>t.owner===filterOwner);
+  matchList.innerHTML="";
+  if(matches.length===0) matchList.innerHTML="<p>Hiç eşleşen takım bulunamadı.</p>";
+  matches.forEach(m=>{
+    const div=document.createElement("div");
+    div.className="match";
+    div.style.borderLeftColor = skillColors[m.skill] || "#333";
+    div.innerHTML=`<strong>${m.teamName}</strong>
+                   <p>Seviye: ${m.skill}</p>
+                   <p>Konum: ${m.location}</p>
+                   <p>İletişim: ${m.contact}</p>`;
+    matchList.appendChild(div);
+  });
+  home.style.display="none"; results.style.display="block";
+}
+
+// Butonlar
+findBtn.addEventListener("click",()=>showMatches());
+myTeamsBtn.addEventListener("click",()=>showMatches(currentUser));
+backBtn.addEventListener("click",()=>{ results.style.display="none"; home.style.display="block"; });
+
 </script>
 </body>
 </html>
